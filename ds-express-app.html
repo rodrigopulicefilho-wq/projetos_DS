@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DS Express 2.0 - Delivery & High Performance Tech</title>
+
+  <!-- Google Fonts: Outfit (Brand/Titles) & Plus Jakarta Sans (UI Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          },
+          colors: {
+            tech: {
+              blue: '#0F62FE',
+              orange: '#FF6B00',
+              mint: '#10B981',
+              dark: '#121826',
+              card: '#1E293B',
+              border: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet.js CDN for Interactive Drag-Pin Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --base-font-size: 16px;
+    }
+    html {
+      font-size: var(--base-font-size);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      scroll-behavior: smooth;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background-color: #0F62FE;
+      border-radius: 9999px;
+    }
+    .ds-card {
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
+    }
+    .ds-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -6px rgba(15, 98, 254, 0.25);
+    }
+    /* Pulse animation for live delivery badge */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .active-order-pulse {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-[#121826] text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP BAR: Acessibilidade & Controles -->
+  <header class="sticky top-0 z-40 w-full bg-[#121826]/90 backdrop-blur-md border-b border-slate-800">
+    <div class="bg-slate-900 text-slate-300 text-xs py-1 px-4 border-b border-slate-800/80">
+      <div class="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-2">
+        <div class="flex items-center space-x-2 font-medium text-[11px]">
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#0F62FE]/20 text-[#0F62FE] border border-[#0F62FE]/30">v2.0 FSM</span>
+          <span>DS Express • Alta Frequência de Entrega & Performance</span>
+        </div>
+        <div class="flex items-center space-x-3 text-[11px]">
+          <div class="flex items-center space-x-1">
+            <span class="text-slate-400">Fonte:</span>
+            <button onclick="changeFontSize(-1)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded font-bold">A-</button>
+            <button onclick="resetFontSize()" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded font-bold">100%</button>
+            <button onclick="changeFontSize(1)" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 rounded font-bold">A+</button>
+          </div>
+          <span class="text-slate-700">|</span>
+          <button onclick="toggleDarkMode()" class="hover:text-[#FF6B00] transition flex items-center gap-1">
+            <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+            <span>Tema</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      
+      <!-- LOGO MARCA DS EXPRESS (Tech Brackets + Lightning Bolt) -->
+      <button onclick="navigateTo('HOME')" class="flex items-center space-x-3 focus:outline-none group">
+        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#0F62FE] to-[#FF6B00] p-0.5 shadow-lg group-hover:scale-105 transition-transform flex items-center justify-center">
+          <div class="w-full h-full bg-[#121826] rounded-[10px] flex items-center justify-center relative overflow-hidden">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 8L3 12L7 16" stroke="#0F62FE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 8L21 12L17 16" stroke="#0F62FE" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13 5L9 19" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="text-left">
+          <div class="flex items-center space-x-1">
+            <span class="text-xl font-black font-heading tracking-tight text-white">DS <span class="text-[#FF6B00]">Express</span></span>
+          </div>
+          <span class="text-[9px] text-slate-400 font-extrabold tracking-widest uppercase block -mt-1">Desenvolvimento & Delivery</span>
+        </div>
+      </button>
+
+      <!-- BARRA DE BUSCA GLOBAL -->
+      <div class="flex-1 max-w-md relative hidden md:block">
+        <input type="text" id="globalSearchInput" oninput="handleSearch(this.value)" placeholder="Buscar restaurante, sushi, lanches, pizza..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-[#0F62FE] transition">
+        <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      </div>
+
+      <!-- SELETOR DE ENDEREÇO RAPIDO -->
+      <button onclick="openMapModal()" class="hidden sm:flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 px-3 py-1.5 rounded-xl text-xs transition">
+        <i data-lucide="map-pin" class="w-4 h-4 text-[#FF6B00]"></i>
+        <div class="text-left">
+          <span class="text-[10px] text-slate-400 block font-bold leading-none">Entrega em:</span>
+          <span id="currentAddressText" class="font-bold text-slate-200 block truncate max-w-[150px]">Av. Paulista, 1000</span>
+        </div>
+      </button>
+
+      <!-- ACOES DO USUARIO: AVATAR + STATUS PEDIDO + CARRIHO -->
+      <div class="flex items-center space-x-2">
+        <!-- Status de Pedido Ativo (FSM Guard check) -->
+        <button id="activeOrderNavBtn" onclick="openTrackingModal()" class="hidden relative flex items-center space-x-2 bg-[#FF6B00]/10 border border-[#FF6B00]/40 text-[#FF6B00] px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-[#FF6B00]/20 transition">
+          <span class="w-2 h-2 rounded-full bg-[#FF6B00] active-order-pulse"></span>
+          <span>Acompanhar Pedido</span>
+        </button>
+
+        <!-- Perfil + Avatar DiceBear -->
+        <button onclick="openProfileModal()" class="flex items-center space-x-2 p-1 bg-slate-900 border border-slate-800 rounded-xl hover:border-[#0F62FE] transition">
+          <img id="headerUserAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=DSUser1" alt="Avatar" class="w-7 h-7 rounded-lg bg-slate-800">
+          <span id="headerUserName" class="text-xs font-bold text-slate-200 hidden lg:inline max-w-[90px] truncate">Dev User</span>
+        </button>
+
+        <!-- Carrinho -->
+        <button onclick="toggleCartDrawer(true)" class="relative bg-[#0F62FE] hover:bg-[#0F62FE]/90 text-white p-2.5 rounded-xl transition shadow-md flex items-center justify-center">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <span id="cartBadge" class="hidden absolute -top-1.5 -right-1.5 bg-[#FF6B00] text-white text-[10px] font-black rounded-full h-4 w-4 flex items-center justify-center">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER FIXO DE PEDIDO EM ANDAMENTO (VISÍVEL APENAS QUANDO A FSM TEM ORDEM ATIVA) -->
+  <div id="activeOrderBanner" class="hidden bg-gradient-to-r from-[#FF6B00] via-orange-600 to-[#0F62FE] text-white py-2 px-4 shadow-lg">
+    <div class="max-w-7xl mx-auto flex justify-between items-center text-xs font-bold">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="truck" class="w-4 h-4 animate-bounce"></i>
+        <span>Seu pedido está em andamento! Status atual: <strong id="activeOrderBannerStatus" class="underline uppercase">PREPARANDO</strong></span>
+      </div>
+      <button onclick="openTrackingModal()" class="bg-slate-950/40 hover:bg-slate-950/60 px-3 py-1 rounded-lg border border-white/20 transition">
+        Ver Detalhes do Rastreio
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO DINÂMICO DAS TELAS -->
+  <main id="appContainer" class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+    <!-- Renderizado via JavaScript -->
+  </main>
+
+  <!-- MODAL: SELETOR DE MAPA INTERATIVO & ENDEREÇO -->
+  <div id="mapModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#121826] border border-slate-800 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-sm text-white flex items-center gap-2">
+          <i data-lucide="map-pin" class="text-[#FF6B00] w-4 h-4"></i>
+          <span>Confirmar Ponto de Entrega</span>
+        </h3>
+        <button onclick="closeMapModal()" class="text-slate-400 hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Autocomplete Input -->
+      <div class="relative">
+        <input type="text" id="mapSearchInput" placeholder="Digite rua, avenida, número ou CEP..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0F62FE]">
+        <button onclick="searchAddressOnMap()" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs bg-[#0F62FE] px-2.5 py-1 rounded-lg font-bold">Buscar</button>
+      </div>
+
+      <!-- Container do Mapa Leaflet -->
+      <div id="interactiveMap" class="w-full h-56 rounded-xl border border-slate-700 overflow-hidden bg-slate-900"></div>
+
+      <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
+        <span class="text-slate-400 block text-[10px] uppercase tracking-wider font-bold">Endereço Detectado:</span>
+        <p id="detectedAddressText" class="font-bold text-slate-200">Av. Paulista, 1000 - Bela Vista, São Paulo - SP</p>
+      </div>
+
+      <button onclick="confirmMapAddress()" class="w-full bg-[#0F62FE] hover:bg-[#0F62FE]/90 text-white font-extrabold py-2.5 rounded-xl text-xs transition">
+        Confirmar Este Endereço
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: PERFIL DO USUÁRIO & GERADOR DICEBEAR AVATAR -->
+  <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#121826] border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-sm text-white flex items-center gap-2">
+          <i data-lucide="user" class="text-[#0F62FE] w-4 h-4"></i>
+          <span>Perfil do Usuário</span>
+        </h3>
+        <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Seletor de Avatar DiceBear -->
+      <div class="text-center space-y-3">
+        <div class="relative inline-block group">
+          <img id="userAvatarPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=DSUser1" alt="Avatar" class="w-24 h-24 rounded-full border-2 border-[#0F62FE] bg-slate-900 p-1 shadow-xl mx-auto object-cover">
+          <button onclick="randomizeAvatarSeed()" class="absolute bottom-0 right-0 bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white p-2 rounded-full shadow-lg transition" title="Sortear Novo Avatar">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        <div>
+          <h4 class="font-bold text-xs text-slate-200">Personalize seu Avatar Vetorial</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5">Gerado dinamicamente via DiceBear API</p>
+        </div>
+
+        <div class="flex justify-center gap-2 pt-1">
+          <button onclick="setAvatarStyle('bottts')" class="px-2.5 py-1 rounded-lg text-[10px] bg-slate-800 hover:bg-[#0F62FE] text-white font-bold transition">Bot Tech</button>
+          <button onclick="setAvatarStyle('avataaars')" class="px-2.5 py-1 rounded-lg text-[10px] bg-slate-800 hover:bg-[#0F62FE] text-white font-bold transition">Humano</button>
+          <button onclick="setAvatarStyle('identicon')" class="px-2.5 py-1 rounded-lg text-[10px] bg-slate-800 hover:bg-[#0F62FE] text-white font-bold transition">Pixel</button>
+          <label class="px-2.5 py-1 rounded-lg text-[10px] bg-[#0F62FE]/20 text-[#0F62FE] border border-[#0F62FE]/40 cursor-pointer font-bold hover:bg-[#0F62FE]/30 transition">
+            Upload
+            <input type="file" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+          </label>
+        </div>
+      </div>
+
+      <!-- Form de Nome e Telefone -->
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Nome / Username Dev</label>
+          <input type="text" id="profileNameInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-[#0F62FE]">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Telefone / WhatsApp</label>
+          <input type="text" id="profilePhoneInput" placeholder="(11) 98888-7777" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-[#0F62FE]">
+        </div>
+      </div>
+
+      <button onclick="saveUserProfile()" class="w-full bg-[#0F62FE] hover:bg-[#0F62FE]/90 text-white font-extrabold py-2.5 rounded-xl text-xs transition">
+        Salvar Alterações
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHES E CUSTOMIZAÇÃO DO PRATO -->
+  <div id="itemModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#121826] border border-slate-800 rounded-2xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="relative h-44 bg-slate-900 overflow-hidden">
+        <img id="modalItemImg" src="" class="w-full h-full object-cover">
+        <button onclick="closeItemModal()" class="absolute top-3 right-3 bg-slate-950/70 text-white p-2 rounded-full hover:bg-slate-900"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="p-5 overflow-y-auto custom-scroll flex-grow space-y-4">
+        <div>
+          <h3 id="modalItemTitle" class="text-base font-bold font-heading text-white"></h3>
+          <p id="modalItemDesc" class="text-xs text-slate-400 mt-1 line-clamp-3"></p>
+          <span id="modalItemPrice" class="text-sm font-extrabold text-[#0F62FE] mt-2 block"></span>
+        </div>
+
+        <hr class="border-slate-800">
+
+        <!-- Adicionais -->
+        <div>
+          <h4 class="font-bold text-xs text-slate-300 uppercase tracking-wider mb-2">Adicionais Extras</h4>
+          <div id="modalAddonsContainer" class="space-y-2"></div>
+        </div>
+
+        <!-- Remoções -->
+        <div>
+          <h4 class="font-bold text-xs text-slate-300 uppercase tracking-wider mb-2">Remover Ingredientes</h4>
+          <div id="modalRemovalsContainer" class="space-y-2"></div>
+        </div>
+
+        <!-- Observações -->
+        <div>
+          <label class="block font-bold text-xs text-slate-300 mb-1">Observações do Pedido</label>
+          <textarea id="itemNotes" rows="2" placeholder="Ex: Caprichar no molho tarê, enviar talher..." class="w-full p-2.5 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-[#0F62FE]"></textarea>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center justify-between gap-4">
+        <div class="flex items-center border border-slate-700 rounded-xl bg-slate-900">
+          <button onclick="updateModalQuantity(-1)" class="p-2 text-slate-300 hover:text-white"><i data-lucide="minus" class="w-4 h-4"></i></button>
+          <span id="modalQtyDisplay" class="px-3 font-bold text-xs">1</span>
+          <button onclick="updateModalQuantity(1)" class="p-2 text-slate-300 hover:text-white"><i data-lucide="plus" class="w-4 h-4"></i></button>
+        </div>
+        <button onclick="confirmAddToCart()" class="flex-1 bg-gradient-to-r from-[#0F62FE] to-[#FF6B00] hover:opacity-90 text-white font-extrabold py-2.5 px-4 rounded-xl text-xs flex justify-between items-center">
+          <span>Adicionar</span>
+          <span id="modalTotalPriceDisplay">R$ 0,00</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAWER: SACOLA / CARRINHO DE COMPRAS -->
+  <div id="cartDrawer" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden transition-opacity">
+    <div id="cartDrawerContent" class="fixed inset-y-0 right-0 max-w-md w-full bg-[#121826] border-l border-slate-800 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300">
+      <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-[#0F62FE]"></i>
+          <h2 class="font-bold text-sm text-white font-heading">Sua Sacola Dev</h2>
+        </div>
+        <button onclick="toggleCartDrawer(false)" class="p-1 rounded text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div id="cartItemsList" class="flex-grow p-4 overflow-y-auto custom-scroll space-y-3"></div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-900/80 space-y-3">
+        <div class="space-y-1.5 text-xs text-slate-400">
+          <div class="flex justify-between"><span>Subtotal</span><span id="cartSubtotal" class="font-bold text-white">R$ 0,00</span></div>
+          <div class="flex justify-between"><span>Taxa de Entrega</span><span id="cartDeliveryFee" class="font-bold text-white">R$ 0,00</span></div>
+          <div class="flex justify-between text-sm font-black text-white pt-2 border-t border-slate-800">
+            <span>Total</span>
+            <span id="cartTotal" class="text-[#0F62FE]">R$ 0,00</span>
+          </div>
+        </div>
+        <button onclick="proceedToCheckout()" class="w-full bg-[#0F62FE] hover:bg-[#0F62FE]/90 text-white font-extrabold py-3 rounded-xl text-xs transition flex justify-center items-center gap-2">
+          <span>Ir para o Checkout</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RASTREAMENTO FSM EM TEMPO REAL -->
+  <div id="trackingModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#121826] border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-base text-white flex items-center gap-2">
+            <i data-lucide="truck" class="text-[#FF6B00] w-5 h-5"></i>
+            <span>Rastreamento em Tempo Real</span>
+          </h3>
+          <p id="trackingOrderIdDisplay" class="text-[11px] text-slate-400">Pedido ID #---</p>
+        </div>
+        <button onclick="closeTrackingModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Card de Mensagem de Status -->
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center space-y-2">
+        <span id="trackingStatusBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#0F62FE]/20 text-[#0F62FE] border border-[#0F62FE]/40"></span>
+        <p id="trackingMessagePhrase" class="text-xs text-slate-200 font-medium leading-relaxed"></p>
+      </div>
+
+      <!-- Timeline da FSM -->
+      <div class="relative py-4">
+        <div class="absolute top-1/2 left-4 right-4 -translate-y-1/2 h-1 bg-slate-800 -z-0"></div>
+        <div id="trackingProgressBar" class="absolute top-1/2 left-4 -translate-y-1/2 h-1 bg-gradient-to-r from-[#0F62FE] to-[#FF6B00] transition-all duration-500 -z-0" style="width: 0%;"></div>
+
+        <div class="relative z-10 flex justify-between text-center">
+          <div id="fsmStep-PAYMENT_PENDING" class="flex flex-col items-center space-y-1">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-400 text-xs font-bold transition-all">1</div>
+            <span class="text-[10px] font-bold text-slate-400">Aguardando</span>
+          </div>
+          <div id="fsmStep-PREPARING" class="flex flex-col items-center space-y-1">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-400 text-xs font-bold transition-all">2</div>
+            <span class="text-[10px] font-bold text-slate-400">Preparo</span>
+          </div>
+          <div id="fsmStep-OUT_FOR_DELIVERY" class="flex flex-col items-center space-y-1">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-400 text-xs font-bold transition-all">3</div>
+            <span class="text-[10px] font-bold text-slate-400">Em Trânsito</span>
+          </div>
+          <div id="fsmStep-DELIVERED" class="flex flex-col items-center space-y-1">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-400 text-xs font-bold transition-all">4</div>
+            <span class="text-[10px] font-bold text-slate-400">Entregue</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão de Simulação de Avanço de Estado FSM -->
+      <div class="pt-2">
+        <button onclick="advanceFsmSimulated()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 transition flex items-center justify-center gap-2">
+          <i data-lucide="fast-forward" class="w-4 h-4 text-[#FF6B00]"></i>
+          <span>Simular Próximo Evento da FSM</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RODAPÉ DA APLICAÇÃO -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-8 mt-12 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="space-y-2">
+        <span class="text-lg font-black font-heading text-white">DS <span class="text-[#FF6B00]">Express</span></span>
+        <p>Ecossistema de e-commerce e delivery alimentado por arquitetura FSM e resposta em baixíssima latência.</p>
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-300 mb-2">Categorias Ativas</h4>
+        <ul class="space-y-1">
+          <li><a href="#" onclick="filterCategory('Comida Japonesa'); return false;" class="hover:text-[#0F62FE]">Comida Japonesa</a></li>
+          <li><a href="#" onclick="filterCategory('Hambúrgueres'); return false;" class="hover:text-[#0F62FE]">Hambúrgueres</a></li>
+          <li><a href="#" onclick="filterCategory('Pizzas'); return false;" class="hover:text-[#0F62FE]">Pizzas</a></li>
+          <li><a href="#" onclick="filterCategory('Comida Brasileira'); return false;" class="hover:text-[#0F62FE]">Comida Brasileira</a></li>
+          <li><a href="#" onclick="filterCategory('Sobremesas'); return false;" class="hover:text-[#0F62FE]">Sobremesas</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-300 mb-2">Arquitetura de Estados (FSM)</h4>
+        <p>Validação estrita de sessão ativa (PREPARING, OUT_FOR_DELIVERY) evitando falsos alertas ou estados obsoletos.</p>
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-300 mb-2">Polo Gastronômico</h4>
+        <p>© 2026 DS Express Inc. Sagrada Família 1 DS. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT VANILLA PRINCIPAL -->
+  <script>
+    /* ==========================================================================
+       1. BANCO DE DADOS MOCK JSON (BANNERS & TODAS AS CATEGORIAS COM MULTIPLAS LOJAS)
+       ========================================================================== */
+    const DATABASE = {
+      banners: [
+        {
+          id: "banner-1",
+          title: "Venha visitar o Sagrada Família 1 DS!",
+          subtitle: "Conheça o novo polo gastronômico e tecnológico de alta performance.",
+          ctaText: "Saber Mais",
+          tag: "EXCLUSIVO",
+          bgGradient: "from-[#0F62FE] via-[#0F62FE]/80 to-[#121826]",
+          image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+          id: "banner-2",
+          title: "Entregas na velocidade do seu código: DS Express",
+          subtitle: "Receba pratos gourmet com a menor latência e precisão do mercado.",
+          ctaText: "Pedir Agora",
+          tag: "SPEED TECH",
+          bgGradient: "from-[#FF6B00] via-[#FF6B00]/80 to-[#121826]",
+          image: "https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=1200&q=80"
+        },
+        {
+          id: "banner-3",
+          title: "Cupom SISTEMA10: 10% OFF no primeiro pedido",
+          subtitle: "Aplique o código e garanta seu desconto especial de boas-vindas.",
+          ctaText: "Resgatar Cupom",
+          tag: "PROMOÇÃO",
+          bgGradient: "from-[#10B981] via-[#10B981]/80 to-[#121826]",
+          image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=80"
+        }
+      ],
+      categories: [
+        { id: "cat-todos", name: "Todos" },
+        { id: "cat-japonesa", name: "Comida Japonesa" },
+        { id: "cat-hamburguer", name: "Hambúrgueres" },
+        { id: "cat-pizzas", name: "Pizzas" },
+        { id: "cat-brasileira", name: "Comida Brasileira" },
+        { id: "cat-doces", name: "Sobremesas" }
+      ],
+      stores: [
+        /* 1. COMIDA JAPONESA (4 RESTAURANTES) */
+        {
+          id: "store-sushimar-ds",
+          name: "Sushimar DS",
+          category: "Comida Japonesa",
+          rating: 4.9,
+          reviewCount: 380,
+          time: "25-35 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=1200&q=80",
+          description: "Fusão tradicional nipônica com precisão de código. Peixes frescos selecionados diariamente.",
+          menu: [
+            { id: "sushimar-1", name: "Combinado Dev Master (30 Pçs)", category: "Combinados", price: 98.90, description: "10 Sashimis Salmão, 6 Niguiris Trufados, 8 Uramakis Ebi e 6 Djoys de Geléia.", image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Molho Tarê Extra", price: 3.50 }], removals: ["Sem Cebolinha"] },
+            { id: "sushimar-2", name: "Temaki Salmão Crispy", category: "Temakis", price: 34.50, description: "Nori super crocante, arroz temperado, salmão fresco e crisps de couve.", image: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Cream Cheese Duplo", price: 4.50 }], removals: ["Sem Cream Cheese"] }
+          ]
+        },
+        {
+          id: "store-harumaki-tech",
+          name: "Harumaki Tech",
+          category: "Comida Japonesa",
+          rating: 4.8,
+          reviewCount: 210,
+          time: "20-30 min",
+          deliveryFee: 4.90,
+          image: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80",
+          description: "Especialistas em rolinhos primavera gourmets, yakisobas e entradas crocantes.",
+          menu: [
+            { id: "harumaki-1", name: "Combo Harumaki Supremo (6 Pçs)", category: "Entradas", price: 38.00, description: "2 Harumakis Gouda, 2 Carne Seca com Catupiry e 2 Legumes Quentes.", image: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Molho Agridoce Extra", price: 3.00 }], removals: [] }
+          ]
+        },
+        {
+          id: "store-nippon-code",
+          name: "Nippon Code",
+          category: "Comida Japonesa",
+          rating: 5.0,
+          reviewCount: 512,
+          time: "30-40 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=1200&q=80",
+          description: "Experiência omakase e lamens artesanais com caldo cozido por 12 horas.",
+          menu: [
+            { id: "nippon-1", name: "Tonkotsu Ramen Algoritmo", category: "Lamens", price: 52.00, description: "Caldo denso de suíno, macarrão fresco, chashu de barriga de porco e ovo ajitama.", image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Chashu Extra", price: 8.00 }], removals: ["Sem Cebolinha"] }
+          ]
+        },
+        {
+          id: "store-yatai-express",
+          name: "Yatai Express",
+          category: "Comida Japonesa",
+          rating: 4.7,
+          reviewCount: 140,
+          time: "15-25 min",
+          deliveryFee: 3.50,
+          image: "https://images.unsplash.com/photo-1583623025817-d180a2221d0a?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1200&q=80",
+          description: "Comida de rua japonesa ultrarrápida: Takoyaki, Gyozas grelhados e Baos.",
+          menu: [
+            { id: "yatai-1", name: "Gyoza Suíno Grelhado (8 Pçs)", category: "Street Food", price: 29.90, description: "Pastéis orientais recheados com carne suína temperada e molho ponzu.", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Molho Ponzu Extra", price: 2.50 }], removals: [] }
+          ]
+        },
+
+        /* 2. HAMBÚRGUERES (4 RESTAURANTES) */
+        {
+          id: "store-byte-burger",
+          name: "Byte Burger",
+          category: "Hambúrgueres",
+          rating: 4.9,
+          reviewCount: 420,
+          time: "20-30 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80",
+          description: "Burgers ultra suculentos prensados na chapa de ferro com molhos secretos.",
+          menu: [
+            { id: "byte-1", name: "Smash Double Cheese Byte", category: "Destaques", price: 32.90, description: "Dois blends de 100g prensados com crosta crocante, cheddar duplo e pão brioche.", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Bacon Crocante Extra", price: 4.50 }], removals: ["Sem Pickles"] }
+          ]
+        },
+        {
+          id: "store-smash-code",
+          name: "Smash Code Gourmet",
+          category: "Hambúrgueres",
+          rating: 4.8,
+          reviewCount: 310,
+          time: "15-25 min",
+          deliveryFee: 3.90,
+          image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=1200&q=80",
+          description: "Pão de batata, blends Angus selecionados e maionese defumada artesanal.",
+          menu: [
+            { id: "smash-1", name: "Truffled Angus Smash", category: "Gourmet", price: 39.90, description: "180g Angus, queijo emental, maionese de trufas e cebola crispy.", image: "https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Ovo Frito", price: 3.00 }], removals: [] }
+          ]
+        },
+        {
+          id: "store-stack-burgers",
+          name: "Stack Burgers",
+          category: "Hambúrgueres",
+          rating: 4.7,
+          reviewCount: 195,
+          time: "25-35 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=1200&q=80",
+          description: "Empilhados com muito queijo, anéis de cebola e barbecue artesanal.",
+          menu: [
+            { id: "stack-1", name: "Quad Stack Monster", category: "Monstros", price: 48.90, description: "4 hambúrgueres smash, quádruplo cheddar e bacon em tiras.", image: "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-fast-syntax",
+          name: "Fast Syntax Grill",
+          category: "Hambúrgueres",
+          rating: 4.6,
+          reviewCount: 160,
+          time: "20-30 min",
+          deliveryFee: 4.50,
+          image: "https://images.unsplash.com/photo-1512152272829-e3139592d56f?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1512152272829-e3139592d56f?auto=format&fit=crop&w=1200&q=80",
+          description: "Lanches clássicos e combos com batatas rústicas temperadas com páprica.",
+          menu: [
+            { id: "syntax-1", name: "Combo Syntax Classic", category: "Combos", price: 35.00, description: "Cheeseburger tradicional + Batata Rústica + Refri lata.", image: "https://images.unsplash.com/photo-1512152272829-e3139592d56f?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+
+        /* 3. PIZZAS (4 RESTAURANTES) */
+        {
+          id: "store-pizza-[#0F62FE]",
+          name: "Pizza AlgoRítmica",
+          category: "Pizzas",
+          rating: 4.9,
+          reviewCount: 530,
+          time: "30-40 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1200&q=80",
+          description: "Pizzas napolitanas de fermentação longa de 48h assadas a 450°C.",
+          menu: [
+            { id: "pizza-1", name: "Pizza Margherita Speziale", category: "Pizzas", price: 58.90, description: "Molho de tomate italiano, mussarela de búfala e manjericão fresco.", image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Borda de Catupiry", price: 8.00 }], removals: ["Sem Manjericão"] }
+          ]
+        },
+        {
+          id: "store-bella-napoli",
+          name: "Bella Napoli Tech",
+          category: "Pizzas",
+          rating: 4.8,
+          reviewCount: 290,
+          time: "35-45 min",
+          deliveryFee: 5.00,
+          image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=1200&q=80",
+          description: "A verdadeira tradição italiana combinada com ingredientes importados.",
+          menu: [
+            { id: "napoli-1", name: "Pizza Pepperoni Supreme", category: "Pizzas", price: 64.00, description: "Mussarela premium, pepperoni fatiado e orégano selvagem.", image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-crust-code",
+          name: "Crust & Code Pizzeria",
+          category: "Pizzas",
+          rating: 4.9,
+          reviewCount: 340,
+          time: "25-35 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1200&q=80",
+          description: "Massas finas e crocantes com recheios gourmet e bordas recheadas.",
+          menu: [
+            { id: "crust-1", name: "Pizza Quatro Queijos Gold", category: "Pizzas", price: 62.90, description: "Gorgonzola, catupiry, mussarela e parmesão crocante.", image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-forno-digital",
+          name: "Forno Digital 2.0",
+          category: "Pizzas",
+          rating: 4.7,
+          reviewCount: 180,
+          time: "30-40 min",
+          deliveryFee: 3.90,
+          image: "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=1200&q=80",
+          description: "Pizzas quadradas estilo Detroit e pizzas doces inesquecíveis.",
+          menu: [
+            { id: "forno-1", name: "Detroit Style Chicken Bacon", category: "Quadradas", price: 59.00, description: "Massa alta aerada, frango desfiado, bacon e muito queijo.", image: "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+
+        /* 4. COMIDA BRASILEIRA (4 RESTAURANTES) */
+        {
+          id: "store-sabor-codigo",
+          name: "Sabor do Código Bistrô",
+          category: "Comida Brasileira",
+          rating: 4.8,
+          reviewCount: 310,
+          time: "20-30 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+          description: "Pratos executivos, marmitas de chefs, grelhados na hora e saladas frescas.",
+          menu: [
+            { id: "sabor-1", name: "Picanha Executiva Premium", category: "Pratos Quentes", price: 42.90, description: "Fatias de picanha na chapa, arroz branco, feijão tropeiro e farofa crocante.", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: ["Sem Vinaigrette"] }
+          ]
+        },
+        {
+          id: "store-feijoada-dev",
+          name: "Feijoada Dev Master",
+          category: "Comida Brasileira",
+          rating: 4.9,
+          reviewCount: 450,
+          time: "30-40 min",
+          deliveryFee: 4.90,
+          image: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=1200&q=80",
+          description: "A melhor feijoada tradicional com carnes nobres, torresmo e couve frita.",
+          menu: [
+            { id: "feij-1", name: "Feijoada Completa Individual", category: "Especiais", price: 38.90, description: "Acompanha arroz, couve refogada, torresmo pururuca e laranjas.", image: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=500&q=80", availableAddons: [{ name: "Torresmo Extra", price: 6.00 }], removals: [] }
+          ]
+        },
+        {
+          id: "store-cantinho-vovo",
+          name: "Cantinho da Vovó Tech",
+          category: "Comida Brasileira",
+          rating: 4.7,
+          reviewCount: 220,
+          time: "25-35 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1200&q=80",
+          description: "Comida caseira afetiva com tempero caipira de verdade.",
+          menu: [
+            { id: "vovo-1", name: "Frango com Gregion & Purê", category: "Caseiro", price: 29.90, description: "Coxa e sobrecoxa assadas com molho ferrugem, purê de batatas e arroz.", image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-tempero-br",
+          name: "Tempero Brasileiro Express",
+          category: "Comida Brasileira",
+          rating: 4.8,
+          reviewCount: 175,
+          time: "20-30 min",
+          deliveryFee: 3.50,
+          image: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=1200&q=80",
+          description: "Moquecas baianas, escondidinhos de carne seca e Baião de Dois.",
+          menu: [
+            { id: "tempero-1", name: "Baião de Dois com Queijo Coalho", category: "Nordestina", price: 36.50, description: "Arroz, feijão de corda, carne de sol desfiada e queijo coalho grelhado.", image: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+
+        /* 5. SOBREMESAS (4 RESTAURANTES) */
+        {
+          id: "store-sweet-byte",
+          name: "Sweet Byte Confeitaria",
+          category: "Sobremesas",
+          rating: 5.0,
+          reviewCount: 620,
+          time: "15-25 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=1200&q=80",
+          description: "Tortas finas, fatias recheadas de bolo Red Velvet e pudins gourmet.",
+          menu: [
+            { id: "sweet-1", name: "Fatia Red Velvet Supremo", category: "Bolos", price: 19.90, description: "Massa aveludada de cacau com recheio de cream cheese e geléia de frutas.", image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-gelato-loop",
+          name: "Gelato Loop Premium",
+          category: "Sobremesas",
+          rating: 4.9,
+          reviewCount: 380,
+          time: "15-20 min",
+          deliveryFee: 3.00,
+          image: "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=1200&q=80",
+          description: "Gelatos italianos artesanais feitos diariamente com frutas frescas.",
+          menu: [
+            { id: "gelato-1", name: "Copão Gelato Pistache Italiano (500ml)", category: "Gelatos", price: 38.00, description: "Pistache puro da Sicília cremoso e sem aditivos.", image: "https://images.unsplash.com/photo-1567206563064-6f60f40a2b57?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-churros-code",
+          name: "Churros & Code",
+          category: "Sobremesas",
+          rating: 4.8,
+          reviewCount: 240,
+          time: "20-30 min",
+          deliveryFee: 2.50,
+          image: "https://images.unsplash.com/photo-1624371414361-e670ef488916?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1624371414361-e670ef488916?auto=format&fit=crop&w=1200&q=80",
+          description: "Churros espanhóis crocantes servidos com Doce de Leite uruguaio e Nutella.",
+          menu: [
+            { id: "churros-1", name: "Combo 6 Churros Gourmet", category: "Churros", price: 26.90, description: "Mini churros salpicados com canela e açúcar + 2 potes de mergulho.", image: "https://images.unsplash.com/photo-1624371414361-e670ef488916?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        },
+        {
+          id: "store-red-velvet-tech",
+          name: "Red Velvet & Tech",
+          category: "Sobremesas",
+          rating: 4.9,
+          reviewCount: 190,
+          time: "15-25 min",
+          deliveryFee: 0,
+          image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=600&q=80",
+          banner: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=1200&q=80",
+          description: "Cupcakes, brownies recheados e cookies de colher artesanais.",
+          menu: [
+            { id: "cookie-1", name: "Cookie Quente Nutella & Ninho", category: "Cookies", price: 16.50, description: "Cookie assado na hora macio por dentro e crocante por fora.", image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=500&q=80", availableAddons: [], removals: [] }
+          ]
+        }
+      ]
+    };
+
+    /* ==========================================================================
+       2. MÁQUINA DE ESTADOS FINITOS (FSM) & GERENCIAMENTO DE ESTADO LOCAL
+       ========================================================================== */
+    const FSM_STATUSES = {
+      IDLE: 'IDLE',
+      CART: 'CART',
+      PAYMENT_PENDING: 'PAYMENT_PENDING',
+      PREPARING: 'PREPARING',
+      OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
+      DELIVERED: 'DELIVERED'
+    };
+
+    const ACTIVE_STATUSES = [FSM_STATUSES.PREPARING, FSM_STATUSES.OUT_FOR_DELIVERY];
+
+    const state = {
+      currentView: 'HOME',
+      activeStoreId: null,
+      activeCategoryFilter: 'Todos',
+      searchQuery: '',
+      cart: [],
+      modalItem: null,
+      modalQty: 1,
+      modalSelectedAddons: [],
+      modalSelectedRemovals: [],
+      // Perfil e Avatar DiceBear
+      userName: localStorage.getItem('ds_user_name') || 'Dev User',
+      userPhone: localStorage.getItem('ds_user_phone') || '',
+      userAvatarSeed: localStorage.getItem('ds_avatar_seed') || 'DSUser1',
+      userAvatarStyle: localStorage.getItem('ds_avatar_style') || 'bottts',
+      userAvatarCustom: localStorage.getItem('ds_avatar_custom') || null,
+      userAddress: localStorage.getItem('ds_user_address') || 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
+      userCoords: JSON.parse(localStorage.getItem('ds_user_coords')) || { lat: -23.561684, lng: -46.655981 },
+      // Estado da FSM ativo
+      activeOrder: getActiveOrderSafe(),
+      currentBannerIndex: 0,
+      fontSize: parseInt(localStorage.getItem('ds_font_size')) || 16
+    };
+
+    /* GUARDA DE INICIALIZAÇÃO DA FSM (Regra de Negócio anti-bug de status falso) */
+    function getActiveOrderSafe() {
+      const storedOrder = localStorage.getItem('ds_active_order');
+      if (!storedOrder) return null;
+      try {
+        const order = JSON.parse(storedOrder);
+        // Expurga da memória ativa se estiver Entregue, ID inválido ou fora dos status permitidos
+        if (!order.id || !ACTIVE_STATUSES.includes(order.status)) {
+          localStorage.removeItem('ds_active_order');
+          return null;
+        }
+        return order;
+      } catch (e) {
+        localStorage.removeItem('ds_active_order');
+        return null;
+      }
+    }
+
+    /* Set e Persistência FSM */
+    function setActiveOrderFsm(status, orderId = null) {
+      if (status === FSM_STATUSES.DELIVERED || status === FSM_STATUSES.IDLE) {
+        state.activeOrder = null;
+        localStorage.removeItem('ds_active_order');
+      } else {
+        const id = orderId || (state.activeOrder ? state.activeOrder.id : Math.floor(100000 + Math.random() * 900000));
+        state.activeOrder = { id, status, updatedAt: new Date().toISOString() };
+        if (ACTIVE_STATUSES.includes(status)) {
+          localStorage.setItem('ds_active_order', JSON.stringify(state.activeOrder));
+        } else {
+          localStorage.removeItem('ds_active_order');
+        }
+      }
+      updateActiveOrderUI();
+    }
+
+    /* ==========================================================================
+       3. INICIALIZAÇÃO E EVENTOS
+       ========================================================================== */
+    let mapInstance = null;
+    let mapMarker = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyFontSize(state.fontSize);
+      updateProfileDisplay();
+      updateActiveOrderUI();
+      renderApp();
+      lucide.createIcons();
+
+      // Carrossel Automático de Banners
+      setInterval(() => {
+        if (state.currentView === 'HOME') {
+          state.currentBannerIndex = (state.currentBannerIndex + 1) % DATABASE.banners.length;
+          const slider = document.getElementById('bannerSlider');
+          if (slider) {
+            slider.style.transform = `translateX(-${state.currentBannerIndex * 100}%)`;
+          }
+        }
+      }, 5000);
+    });
+
+    /* ==========================================================================
+       4. MAPA INTERATIVO (LEAFLET API V3 / OPENSTREETMAP)
+       ========================================================================== */
+    function openMapModal() {
+      document.getElementById('mapModal').classList.remove('hidden');
+      setTimeout(() => {
+        if (!mapInstance) {
+          mapInstance = L.map('interactiveMap').setView([state.userCoords.lat, state.userCoords.lng], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+          }).addTo(mapInstance);
+
+          mapMarker = L.marker([state.userCoords.lat, state.userCoords.lng], { draggable: true }).addTo(mapInstance);
+
+          mapMarker.on('dragend', function (e) {
+            const position = mapMarker.getLatLng();
+            state.userCoords = { lat: position.lat, lng: position.lng };
+            reverseGeocode(position.lat, position.lng);
+          });
+        } else {
+          mapInstance.invalidateSize();
+        }
+      }, 200);
+    }
+
+    function closeMapModal() {
+      document.getElementById('mapModal').classList.add('hidden');
+    }
+
+    function reverseGeocode(lat, lng) {
+      document.getElementById('detectedAddressText').innerText = `Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)} (Atualizando rua...)`;
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.display_name) {
+            const addr = data.display_name.split(',').slice(0, 3).join(',');
+            document.getElementById('detectedAddressText').innerText = addr;
+          }
+        }).catch(() => {
+          document.getElementById('detectedAddressText').innerText = `Av. Paulista, ${Math.floor(Math.random() * 2000)} - Bela Vista, São Paulo - SP`;
+        });
+    }
+
+    function searchAddressOnMap() {
+      const query = document.getElementById('mapSearchInput').value.trim();
+      if (!query) return;
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            const first = data[0];
+            const lat = parseFloat(first.lat);
+            const lng = parseFloat(first.lon);
+            state.userCoords = { lat, lng };
+            mapInstance.setView([lat, lng], 16);
+            mapMarker.setLatLng([lat, lng]);
+            document.getElementById('detectedAddressText').innerText = first.display_name.split(',').slice(0, 3).join(',');
+          }
+        });
+    }
+
+    function confirmMapAddress() {
+      const detected = document.getElementById('detectedAddressText').innerText;
+      state.userAddress = detected;
+      localStorage.setItem('ds_user_address', detected);
+      localStorage.setItem('ds_user_coords', JSON.stringify(state.userCoords));
+      document.getElementById('currentAddressText').innerText = detected;
+      closeMapModal();
+    }
+
+    /* ==========================================================================
+       5. SISTEMA DE PERFIL E AVATARES DICEBEAR
+       ========================================================================== */
+    function openProfileModal() {
+      document.getElementById('profileNameInput').value = state.userName;
+      document.getElementById('profilePhoneInput').value = state.userPhone;
+      updateAvatarPreview();
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+    }
+
+    function randomizeAvatarSeed() {
+      state.userAvatarCustom = null;
+      state.userAvatarSeed = 'User_' + Math.random().toString(36).substring(7);
+      updateAvatarPreview();
+    }
+
+    function setAvatarStyle(style) {
+      state.userAvatarCustom = null;
+      state.userAvatarStyle = style;
+      updateAvatarPreview();
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          state.userAvatarCustom = e.target.result;
+          updateAvatarPreview();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function getAvatarUrl() {
+      if (state.userAvatarCustom) return state.userAvatarCustom;
+      return `https://api.dicebear.com/7.x/${state.userAvatarStyle}/svg?seed=${state.userAvatarSeed}`;
+    }
+
+    function updateAvatarPreview() {
+      document.getElementById('userAvatarPreview').src = getAvatarUrl();
+    }
+
+    function saveUserProfile() {
+      state.userName = document.getElementById('profileNameInput').value.trim() || 'Dev User';
+      state.userPhone = document.getElementById('profilePhoneInput').value.trim();
+
+      localStorage.setItem('ds_user_name', state.userName);
+      localStorage.setItem('ds_user_phone', state.userPhone);
+      localStorage.setItem('ds_avatar_seed', state.userAvatarSeed);
+      localStorage.setItem('ds_avatar_style', state.userAvatarStyle);
+      if (state.userAvatarCustom) {
+        localStorage.setItem('ds_avatar_custom', state.userAvatarCustom);
+      } else {
+        localStorage.removeItem('ds_avatar_custom');
+      }
+
+      updateProfileDisplay();
+      closeProfileModal();
+      renderApp();
+    }
+
+    function updateProfileDisplay() {
+      const avatarUrl = getAvatarUrl();
+      document.getElementById('headerUserAvatar').src = avatarUrl;
+      document.getElementById('headerUserName').innerText = state.userName;
+      document.getElementById('currentAddressText').innerText = state.userAddress;
+    }
+
+    /* ==========================================================================
+       6. NAVEGAÇÃO E RENDERIZAÇÃO DE VISTAS (SPA)
+       ========================================================================== */
+    function navigateTo(view, storeId = null) {
+      state.currentView = view;
+      if (storeId) state.activeStoreId = storeId;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      renderApp();
+    }
+
+    function renderApp() {
+      const container = document.getElementById('appContainer');
+      if (state.currentView === 'HOME') {
+        container.innerHTML = renderHomeView();
+      } else if (state.currentView === 'STORE_MENU') {
+        container.innerHTML = renderStoreMenuView();
+      } else if (state.currentView === 'CHECKOUT') {
+        container.innerHTML = renderCheckoutView();
+      }
+      lucide.createIcons();
+      updateCartBadge();
+    }
+
+    /* RENDER HOME VIEW */
+    function renderHomeView() {
+      const filteredStores = DATABASE.stores.filter(s => {
+        const matchesCat = state.activeCategoryFilter === 'Todos' || s.category === state.activeCategoryFilter;
+        const matchesSearch = s.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                              s.category.toLowerCase().includes(state.searchQuery.toLowerCase());
+        return matchesCat && matchesSearch;
+      });
+
+      return `
+        <!-- CARROSSEL DE BANNERS PROMOCIONAIS -->
+        <div class="relative w-full overflow-hidden rounded-2xl bg-[#121826] border border-slate-800 shadow-2xl mb-8">
+          <div class="flex transition-transform duration-500 ease-out" id="bannerSlider">
+            ${DATABASE.banners.map(b => `
+              <div class="min-w-full relative h-56 sm:h-64 flex items-center p-6 sm:p-10 bg-gradient-to-r ${b.bgGradient} text-white overflow-hidden">
+                <img src="${b.image}" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30" alt="${b.title}">
+                <div class="relative z-10 max-w-lg space-y-3">
+                  <span class="bg-[#FF6B00] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">${b.tag}</span>
+                  <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight font-heading">${b.title}</h2>
+                  <p class="text-xs text-slate-300 line-clamp-2">${b.subtitle}</p>
+                  <button onclick="filterCategory('Comida Japonesa')" class="bg-white text-[#121826] font-extrabold px-4 py-2 rounded-xl text-xs hover:bg-slate-200 transition shadow-md">${b.ctaText}</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Indicadores de Slide -->
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
+            ${DATABASE.banners.map((_, i) => `
+              <div onclick="setBannerIndex(${i})" class="w-2.5 h-1.5 rounded-full cursor-pointer transition-all ${state.currentBannerIndex === i ? 'bg-[#FF6B00] w-6' : 'bg-white/40'}"></div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- CATEGORIAS (GARANTINDO QUE TODAS EXIBEM MULTIPLOS ESTABELECIMENTOS) -->
+        <section class="mb-8">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-extrabold font-heading text-white flex items-center gap-2">
+              <i data-lucide="layout-grid" class="w-5 h-5 text-[#0F62FE]"></i>
+              <span>Categorias Gastronômicas</span>
+            </h2>
+          </div>
+          <div class="flex space-x-2 overflow-x-auto pb-2 custom-scroll">
+            ${DATABASE.categories.map(cat => `
+              <button onclick="filterCategory('${cat.name}')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 border whitespace-nowrap ${state.activeCategoryFilter === cat.name ? 'bg-[#0F62FE] text-white border-[#0F62FE] shadow-md' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'}">
+                <span>${cat.name}</span>
+              </button>
+            `).join('')}
+          </div>
+        </section>
+
+        <!-- LISTAGEM DE RESTAURANTES -->
+        <section>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-extrabold font-heading text-white flex items-center gap-2">
+              <i data-lucide="store" class="w-5 h-5 text-[#FF6B00]"></i>
+              <span>Restaurantes & Polos (${filteredStores.length})</span>
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            ${filteredStores.map(store => `
+              <div onclick="navigateTo('STORE_MENU', '${store.id}')" class="ds-card bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 overflow-hidden">
+                    <img src="${store.image}" alt="${store.name}" class="w-full h-full object-cover">
+                    ${store.deliveryFee === 0 ? `<span class="absolute top-2.5 left-2.5 bg-[#10B981] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase shadow">Frete Grátis</span>` : ''}
+                    <span class="absolute bottom-2.5 right-2.5 bg-slate-950/80 backdrop-blur-md text-white text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center space-x-1 border border-slate-700">
+                      <i data-lucide="star" class="w-3 h-3 fill-amber-400 text-amber-400"></i>
+                      <span>${store.rating}</span>
+                    </span>
+                  </div>
+                  <div class="p-3.5 space-y-1">
+                    <span class="text-[9px] font-bold uppercase tracking-wider text-[#0F62FE]">${store.category}</span>
+                    <h3 class="font-extrabold text-sm text-white font-heading">${store.name}</h3>
+                    <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">${store.description}</p>
+                  </div>
+                </div>
+                <div class="px-3.5 py-2.5 bg-slate-950/60 border-t border-slate-800 flex justify-between text-[11px] text-slate-400 font-medium">
+                  <span class="flex items-center space-x-1"><i data-lucide="clock" class="w-3 h-3 text-[#FF6B00]"></i><span>${store.time}</span></span>
+                  <span>${store.deliveryFee === 0 ? '<strong class="text-[#10B981]">Grátis</strong>' : `R$ ${store.deliveryFee.toFixed(2)}`}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    /* RENDER STORE MENU VIEW */
+    function renderStoreMenuView() {
+      const store = DATABASE.stores.find(s => s.id === state.activeStoreId);
+      if (!store) return `<div>Restaurante não encontrado.</div>`;
+
+      return `
+        <button onclick="navigateTo('HOME')" class="mb-4 inline-flex items-center space-x-1.5 text-xs font-bold text-slate-400 hover:text-[#0F62FE]">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Voltar para todas as lojas</span>
+        </button>
+
+        <div class="relative rounded-2xl overflow-hidden mb-6 bg-slate-900 text-white h-48 sm:h-56 shadow-xl border border-slate-800">
+          <img src="${store.banner}" alt="${store.name}" class="w-full h-full object-cover opacity-40">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#121826] via-[#121826]/50 to-transparent p-6 flex flex-col justify-end">
+            <span class="bg-[#0F62FE] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase inline-block w-fit mb-1">${store.category}</span>
+            <h1 class="text-2xl sm:text-3xl font-black font-heading">${store.name}</h1>
+            <p class="text-xs text-slate-300 mt-1 max-w-lg line-clamp-2">${store.description}</p>
+          </div>
+        </div>
+
+        <section class="space-y-4">
+          <h2 class="text-base font-extrabold font-heading text-white">Cardápio do Estabelecimento</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${store.menu.map(prod => `
+              <div onclick="openItemModal('${store.id}', '${prod.id}')" class="ds-card bg-slate-900 p-4 rounded-2xl border border-slate-800 cursor-pointer flex justify-between gap-4">
+                <div class="flex-1 space-y-1">
+                  <span class="text-[9px] font-bold text-[#FF6B00] uppercase tracking-wider">${prod.category}</span>
+                  <h3 class="font-bold text-white text-sm font-heading">${prod.name}</h3>
+                  <p class="text-xs text-slate-400 line-clamp-2">${prod.description}</p>
+                  <span class="font-black text-[#0F62FE] text-sm block pt-1">R$ ${prod.price.toFixed(2)}</span>
+                </div>
+                <img src="${prod.image}" alt="${prod.name}" class="w-24 h-24 rounded-xl object-cover">
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    /* RENDER CHECKOUT VIEW */
+    function renderCheckoutView() {
+      if (state.cart.length === 0) {
+        return `<div class="text-center py-12"><p class="text-slate-400">Sua sacola está vazia.</p><button onclick="navigateTo('HOME')" class="mt-2 text-[#0F62FE] font-bold text-xs">Voltar às compras</button></div>`;
+      }
+
+      const store = DATABASE.stores.find(s => s.id === state.cart[0].storeId);
+      const subtotal = state.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+      const deliveryFee = store ? store.deliveryFee : 0;
+      const total = subtotal + deliveryFee;
+
+      return `
+        <div class="max-w-2xl mx-auto space-y-6">
+          <button onclick="navigateTo('HOME')" class="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-400 hover:text-[#0F62FE]">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i><span>Continuar Comprando</span>
+          </button>
+
+          <h1 class="text-2xl font-black font-heading text-white">Resumo do Pedido</h1>
+
+          <!-- Dados do Cliente & Entrega -->
+          <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 text-xs">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+              <h2 class="font-bold text-white text-sm">Dados do Cliente</h2>
+              <button onclick="openProfileModal()" class="text-[#0F62FE] font-bold">Editar Perfil</button>
+            </div>
+            <p><strong class="text-slate-400">Nome:</strong> ${state.userName}</p>
+            <p><strong class="text-slate-400">Telefone:</strong> ${state.userPhone || 'Não informado'}</p>
+            <p><strong class="text-slate-400">Endereço de Entrega:</strong> ${state.userAddress}</p>
+          </div>
+
+          <!-- Total e Botão de Finalizar (Dispara FSM: PAYMENT_PENDING -> PREPARING) -->
+          <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3 text-xs">
+            <div class="flex justify-between"><span>Subtotal</span><strong>R$ ${subtotal.toFixed(2)}</strong></div>
+            <div class="flex justify-between"><span>Taxa de Entrega</span><strong>${deliveryFee === 0 ? 'Grátis' : `R$ ${deliveryFee.toFixed(2)}`}</strong></div>
+            <div class="flex justify-between text-sm font-black text-white pt-2 border-t border-slate-800">
+              <span>Total a Pagar</span><span class="text-[#0F62FE]">R$ ${total.toFixed(2)}</span>
+            </div>
+            <button onclick="confirmOrderCheckout()" class="w-full bg-[#0F62FE] hover:bg-[#0F62FE]/90 text-white font-extrabold py-3.5 rounded-xl shadow-lg text-xs transition">
+              Confirmar e Enviar Pedido
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       7. LÓGICA DE CUSTOMIZAÇÃO DO PRATO & SACOLA
+       ========================================================================== */
+    function openItemModal(storeId, productId) {
+      const store = DATABASE.stores.find(s => s.id === storeId);
+      if (!store) return;
+      const product = store.menu.find(m => m.id === productId);
+      if (!product) return;
+
+      state.modalItem = { ...product, storeId };
+      state.modalQty = 1;
+      state.modalSelectedAddons = [];
+      state.modalSelectedRemovals = [];
+
+      document.getElementById('modalItemImg').src = product.image;
+      document.getElementById('modalItemTitle').innerText = product.name;
+      document.getElementById('modalItemDesc').innerText = product.description;
+      document.getElementById('modalItemPrice').innerText = `R$ ${product.price.toFixed(2)}`;
+      document.getElementById('modalQtyDisplay').innerText = 1;
+      document.getElementById('itemNotes').value = '';
+
+      // Renderizar Adicionais
+      const addonsEl = document.getElementById('modalAddonsContainer');
+      addonsEl.innerHTML = (product.availableAddons || []).map((addon, i) => `
+        <label class="flex justify-between items-center p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs cursor-pointer">
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" onchange="toggleModalAddon(${i})" class="rounded text-[#0F62FE]">
+            <span class="font-bold text-slate-200">${addon.name}</span>
+          </div>
+          <span class="text-[#0F62FE] font-bold">+ R$ ${addon.price.toFixed(2)}</span>
+        </label>
+      `).join('') || '<p class="text-xs text-slate-500">Sem adicionais para este item.</p>';
+
+      // Renderizar Remoções
+      const removalsEl = document.getElementById('modalRemovalsContainer');
+      removalsEl.innerHTML = (product.removals || []).map(rem => `
+        <label class="flex items-center space-x-2 p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs cursor-pointer">
+          <input type="checkbox" onchange="toggleModalRemoval('${rem}')" class="rounded text-[#FF6B00]">
+          <span class="text-slate-300">${rem}</span>
+        </label>
+      `).join('') || '<p class="text-xs text-slate-500">Sem ingredientes removíveis.</p>';
+
+      updateModalTotalPrice();
+      document.getElementById('itemModal').classList.remove('hidden');
+    }
+
+    function closeItemModal() {
+      document.getElementById('itemModal').classList.add('hidden');
+    }
+
+    function updateModalQuantity(delta) {
+      if (state.modalQty + delta >= 1) {
+        state.modalQty += delta;
+        document.getElementById('modalQtyDisplay').innerText = state.modalQty;
+        updateModalTotalPrice();
+      }
+    }
+
+    function toggleModalAddon(index) {
+      const addon = state.modalItem.availableAddons[index];
+      const idx = state.modalSelectedAddons.findIndex(a => a.name === addon.name);
+      if (idx > -1) state.modalSelectedAddons.splice(idx, 1);
+      else state.modalSelectedAddons.push(addon);
+      updateModalTotalPrice();
+    }
+
+    function toggleModalRemoval(remText) {
+      const idx = state.modalSelectedRemovals.indexOf(remText);
+      if (idx > -1) state.modalSelectedRemovals.splice(idx, 1);
+      else state.modalSelectedRemovals.push(remText);
+    }
+
+    function updateModalTotalPrice() {
+      if (!state.modalItem) return;
+      const addonsSum = state.modalSelectedAddons.reduce((sum, a) => sum + a.price, 0);
+      const total = (state.modalItem.price + addonsSum) * state.modalQty;
+      document.getElementById('modalTotalPriceDisplay').innerText = `R$ ${total.toFixed(2)}`;
+    }
+
+    function confirmAddToCart() {
+      const addonsSum = state.modalSelectedAddons.reduce((sum, a) => sum + a.price, 0);
+      const unitPrice = state.modalItem.price + addonsSum;
+
+      state.cart.push({
+        storeId: state.modalItem.storeId,
+        product: state.modalItem,
+        quantity: state.modalQty,
+        addons: [...state.modalSelectedAddons],
+        removals: [...state.modalSelectedRemovals],
+        notes: document.getElementById('itemNotes').value.trim(),
+        totalPrice: unitPrice * state.modalQty
+      });
+
+      closeItemModal();
+      renderCartDrawerContent();
+      toggleCartDrawer(true);
+      updateCartBadge();
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cartDrawer');
+      const content = document.getElementById('cartDrawerContent');
+      if (open) {
+        renderCartDrawerContent();
+        drawer.classList.remove('hidden');
+        setTimeout(() => content.classList.remove('translate-x-full'), 10);
+      } else {
+        content.classList.add('translate-x-full');
+        setTimeout(() => drawer.classList.add('hidden'), 300);
+      }
+    }
+
+    function renderCartDrawerContent() {
+      const list = document.getElementById('cartItemsList');
+      if (state.cart.length === 0) {
+        list.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Sua sacola está vazia.</p>`;
+        document.getElementById('cartSubtotal').innerText = 'R$ 0,00';
+        document.getElementById('cartDeliveryFee').innerText = 'R$ 0,00';
+        document.getElementById('cartTotal').innerText = 'R$ 0,00';
+        return;
+      }
+
+      const store = DATABASE.stores.find(s => s.id === state.cart[0].storeId);
+      const subtotal = state.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+      const deliveryFee = store ? store.deliveryFee : 0;
+
+      list.innerHTML = state.cart.map((item, i) => `
+        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs space-y-1">
+          <div class="flex justify-between font-bold text-white">
+            <span>${item.quantity}x ${item.product.name}</span>
+            <span class="text-[#0F62FE]">R$ ${item.totalPrice.toFixed(2)}</span>
+          </div>
+          ${item.addons.length ? `<p class="text-[10px] text-slate-400">+ ${item.addons.map(a => a.name).join(', ')}</p>` : ''}
+          <button onclick="removeFromCart(${i})" class="text-[10px] text-rose-500 font-bold hover:underline pt-1">Remover</button>
+        </div>
+      `).join('');
+
+      document.getElementById('cartSubtotal').innerText = `R$ ${subtotal.toFixed(2)}`;
+      document.getElementById('cartDeliveryFee').innerText = deliveryFee === 0 ? 'Grátis' : `R$ ${deliveryFee.toFixed(2)}`;
+      document.getElementById('cartTotal').innerText = `R$ ${(subtotal + deliveryFee).toFixed(2)}`;
+      lucide.createIcons();
+    }
+
+    function removeFromCart(i) {
+      state.cart.splice(i, 1);
+      renderCartDrawerContent();
+      updateCartBadge();
+    }
+
+    function updateCartBadge() {
+      const total = state.cart.reduce((sum, i) => sum + i.quantity, 0);
+      const badge = document.getElementById('cartBadge');
+      if (total > 0) {
+        badge.innerText = total;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function proceedToCheckout() {
+      toggleCartDrawer(false);
+      navigateTo('CHECKOUT');
+    }
+
+    /* ==========================================================================
+       8. LÓGICA DA FSM E ATUALIZAÇÃO DA INTERFACE DE RASTREAMENTO
+       ========================================================================== */
+    function confirmOrderCheckout() {
+      const orderId = Math.floor(100000 + Math.random() * 900000);
+      state.cart = [];
+      updateCartBadge();
+
+      // Transição FSM: Inicia como PREPARING diretamente para testes e visualização imediata
+      setActiveOrderFsm(FSM_STATUSES.PREPARING, orderId);
+
+      navigateTo('HOME');
+      openTrackingModal();
+    }
+
+    function updateActiveOrderUI() {
+      const banner = document.getElementById('activeOrderBanner');
+      const navBtn = document.getElementById('activeOrderNavBtn');
+
+      if (state.activeOrder && ACTIVE_STATUSES.includes(state.activeOrder.status)) {
+        banner.classList.remove('hidden');
+        navBtn.classList.remove('hidden');
+        document.getElementById('activeOrderBannerStatus').innerText = state.activeOrder.status;
+      } else {
+        banner.classList.add('hidden');
+        navBtn.classList.add('hidden');
+      }
+    }
+
+    function openTrackingModal() {
+      if (!state.activeOrder) {
+        // Se não houver pedido, simula para testes
+        setActiveOrderFsm(FSM_STATUSES.PREPARING, 948201);
+      }
+      updateTrackingModalContent();
+      document.getElementById('trackingModal').classList.remove('hidden');
+    }
+
+    function closeTrackingModal() {
+      document.getElementById('trackingModal').classList.add('hidden');
+    }
+
+    function updateTrackingModalContent() {
+      if (!state.activeOrder) return;
+      const order = state.activeOrder;
+      document.getElementById('trackingOrderIdDisplay').innerText = `Pedido ID #${order.id}`;
+
+      const badge = document.getElementById('trackingStatusBadge');
+      const phrase = document.getElementById('trackingMessagePhrase');
+      const progressBar = document.getElementById('trackingProgressBar');
+
+      badge.innerText = order.status;
+
+      const fsmMap = {
+        [FSM_STATUSES.PAYMENT_PENDING]: {
+          text: `Aguardando confirmação do pagamento do seu pedido...`,
+          width: '15%'
+        },
+        [FSM_STATUSES.PREPARING]: {
+          text: `Olá, <strong>${state.userName}</strong>! Seu pedido já está sendo preparado com carinho pela cozinha. 🍳`,
+          width: '45%'
+        },
+        [FSM_STATUSES.OUT_FOR_DELIVERY]: {
+          text: `Atenção <strong>${state.userName}</strong>! Seu pedido já saiu para entrega e está a caminho de <em>${state.userAddress}</em>. 🛵`,
+          width: '80%'
+        },
+        [FSM_STATUSES.DELIVERED]: {
+          text: `Pedido entregue com sucesso! Bom apetite, <strong>${state.userName}</strong>. 🎉`,
+          width: '100%'
+        }
+      };
+
+      const info = fsmMap[order.status] || fsmMap[FSM_STATUSES.PREPARING];
+      phrase.innerHTML = info.text;
+      progressBar.style.width = info.width;
+
+      // Destacar Etapas na Timeline
+      const steps = [FSM_STATUSES.PAYMENT_PENDING, FSM_STATUSES.PREPARING, FSM_STATUSES.OUT_FOR_DELIVERY, FSM_STATUSES.DELIVERED];
+      const currentIndex = steps.indexOf(order.status);
+
+      steps.forEach((st, idx) => {
+        const el = document.getElementById(`fsmStep-${st}`);
+        if (el) {
+          const circle = el.querySelector('div');
+          if (idx <= currentIndex) {
+            circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-[#0F62FE] text-white font-black text-xs shadow-md";
+          } else {
+            circle.className = "w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-500 font-bold text-xs";
+          }
+        }
+      });
+    }
+
+    function advanceFsmSimulated() {
+      if (!state.activeOrder) return;
+      const current = state.activeOrder.status;
+
+      if (current === FSM_STATUSES.PAYMENT_PENDING) {
+        setActiveOrderFsm(FSM_STATUSES.PREPARING);
+      } else if (current === FSM_STATUSES.PREPARING) {
+        setActiveOrderFsm(FSM_STATUSES.OUT_FOR_DELIVERY);
+      } else if (current === FSM_STATUSES.OUT_FOR_DELIVERY) {
+        setActiveOrderFsm(FSM_STATUSES.DELIVERED);
+      } else {
+        // Se já entregue, reseta
+        setActiveOrderFsm(FSM_STATUSES.IDLE);
+        closeTrackingModal();
+        return;
+      }
+
+      updateTrackingModalContent();
+    }
+
+    /* Auxiliares de UI */
+    function filterCategory(catName) { state.activeCategoryFilter = catName; renderApp(); }
+    function handleSearch(val) { state.searchQuery = val; renderApp(); }
+    function setBannerIndex(idx) {
+      state.currentBannerIndex = idx;
+      const slider = document.getElementById('bannerSlider');
+      if (slider) slider.style.transform = `translateX(-${idx * 100}%)`;
+    }
+    function changeFontSize(delta) {
+      state.fontSize = Math.max(12, Math.min(24, state.fontSize + delta));
+      localStorage.setItem('ds_font_size', state.fontSize);
+      applyFontSize(state.fontSize);
+    }
+    function resetFontSize() {
+      state.fontSize = 16;
+      localStorage.setItem('ds_font_size', 16);
+      applyFontSize(16);
+    }
+    function applyFontSize(size) {
+      document.documentElement.style.setProperty('--base-font-size', size + 'px');
+    }
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+  </script>
+</body>
+</html>
